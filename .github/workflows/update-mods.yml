@@ -36,6 +36,15 @@ jobs:
             ./scripts/sync.sh "$dir"
           done
 
+      # sync/update 内の --fix で修復済みのはずだが、それでも不整合が残っていたら
+      # 壊れた構成のままPRを作らないようここで失敗させる
+      - name: Check mod compatibility (Iris↔Sodium 等の対バージョン検査)
+        run: |
+          for dir in packs/*/; do
+            [ -f "$dir/pack.toml" ] || continue
+            ./scripts/check-compat.sh "$dir"
+          done
+
       - name: Create pull request
         uses: peter-evans/create-pull-request@v7
         with:
@@ -47,6 +56,7 @@ jobs:
 
             - `packwiz update --all` で既存modを更新
             - `scripts/sync.sh` で catalog の未追加mod（新たに対応されたもの）を取り込み
+            - `scripts/check-compat.sh` で mod間の対バージョン（Iris↔Sodium 等）を検査・修復済み
 
             差分を確認してマージしてください。
             マージ後は各インスタンスの次回起動時に packwiz-installer が自動で反映します。
