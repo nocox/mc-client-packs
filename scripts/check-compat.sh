@@ -51,8 +51,9 @@ INSTALLED="$(mktemp)"
 trap 'rm -f "$INSTALLED"' EXIT
 for f in mods/*.pw.toml; do
   [ -f "$f" ] || continue
-  pid="$(sed -n 's/^mod-id = "\(.*\)"$/\1/p' "$f")"
-  vid="$(sed -n 's/^version = "\(.*\)"$/\1/p' "$f")"
+  # tr -d '\r': Windows(Git Bash)での CRLF 混入対策
+  pid="$(tr -d '\r' <"$f" | sed -n 's/^mod-id = "\(.*\)"$/\1/p')"
+  vid="$(tr -d '\r' <"$f" | sed -n 's/^version = "\(.*\)"$/\1/p')"
   [ -n "$pid" ] && [ -n "$vid" ] || continue
   printf '%s %s %s\n' "$pid" "$vid" "$(basename "$f" .pw.toml)" >>"$INSTALLED"
 done
@@ -64,8 +65,9 @@ while read -r pid vid name; do
     echo "WARN: Modrinth API に到達できないため互換性チェックをスキップします" >&2
     exit 0
   }
-  vnum="$(jq -r .version_number <<<"$json")"
-  vtype="$(jq -r .version_type <<<"$json")"
+  # tr -d '\r': Windows 版 jq は CRLF で出力するため、IDやURLに \r が混ざるのを防ぐ
+  vnum="$(jq -r .version_number <<<"$json" | tr -d '\r')"
+  vtype="$(jq -r .version_type <<<"$json" | tr -d '\r')"
   case "$vtype" in
     alpha | beta) echo "NOTE: $name は $vtype 版です ($vnum)" ;;
   esac
@@ -79,22 +81,23 @@ while read -r pid vid name; do
     dep_name="$(cut -d' ' -f3 <<<"$line")"
     [ "$inst_vid" = "$dep_vid" ] && continue
 
-    want="$(api_get "$API/version/$dep_vid" | jq -r .version_number || echo "$dep_vid")"
+    want="$(api_get "$API/version/$dep_vid" | jq -r .version_number | tr -d '\r' || echo "$dep_vid")"
     echo ""
     echo "MISMATCH: $name ($vnum) は $dep_name のバージョン $want を要求していますが、"
     echo "          パックには別のバージョンが入っています"
     mismatch=1
     if [ "$FIX" = 1 ]; then
       echo "FIX: $dep_name を要求バージョン ($want) で入れ直します"
+      # --version-id は slug/ID の位置引数と併用できない（IDは全mod間で一意なので単独で足りる）
       if packwiz remove "$dep_name" </dev/null &&
-        packwiz modrinth add "$dep_pid" --version-id "$dep_vid" -y </dev/null; then
+        packwiz modrinth add --version-id "$dep_vid" -y </dev/null; then
         fixed=1
       else
         echo "ERROR: $dep_name の入れ直しに失敗しました" >&2
         exit 1
       fi
     fi
-  done < <(jq -r '.dependencies[]? | select(.dependency_type == "required" and .version_id != null) | "\(.project_id) \(.version_id)"' <<<"$json")
+  done < <(jq -r '.dependencies[]? | select(.dependency_type == "required" and .version_id != null) | "\(.project_id) \(.version_id)"' <<<"$json" | tr -d '\r')
 done <"$INSTALLED"
 
 if [ "$fixed" = 1 ]; then
