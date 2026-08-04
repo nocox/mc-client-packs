@@ -1,6 +1,10 @@
 hash-format = "sha256"
 
 [[files]]
+file = ".sync-skipped.txt"
+hash = "0b9278aadace76c91a334a95a69017d8c63005c2b93b31daf7fd0d1c4d86fdd2"
+
+[[files]]
 file = "mods/dynamic-fps.pw.toml"
 hash = "fe17d2b9b63e19e1818f55d9d376aaec0c42c9fd9812d9a2f6d1c4160abd161b"
 metafile = true
@@ -33,11 +37,6 @@ metafile = true
 [[files]]
 file = "mods/lithium.pw.toml"
 hash = "a5ee497ec151dd6e6b946091e12e2c56362e5c772c4b8ea175b2e81277cc708d"
-metafile = true
-
-[[files]]
-file = "mods/sodium.pw.toml"
-hash = "4651334ca774c5ab2429135327e8fee5f9264f46828397691c3b9af94da9af87"
 metafile = true
 
 [[files]]
