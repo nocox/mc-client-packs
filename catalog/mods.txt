@@ -1,0 +1,27 @@
+# =====================================================
+# mod カタログ（Modrinth の slug を1行1つ書く）
+# - 行頭 # はコメント
+# - scripts/sync.sh がこのファイルを読んで各パックに反映する
+# - 対象MCバージョンに未対応のmodは自動スキップされ、
+#   対応版が出たあとに sync を再実行すれば自動で追加される
+# =====================================================
+
+# ---- performance（軽量化） ----
+sodium
+lithium
+entityculling
+dynamic-fps
+
+# 26.2 時点では未対応（2026-08-04 調査）。対応され次第 sync で自動追加
+ferrite-core
+immediatelyfast
+modernfix
+
+# ---- shaders（影mod） ----
+iris
+complementary-reimagined
+
+# ---- convenience（便利mod）: 今後ここに追加 ----
+# 例: appleskin
+# 例: emi
+# 例: xaeros-minimap

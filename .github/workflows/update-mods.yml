@@ -1,0 +1,52 @@
+name: weekly-mod-update
+
+# 毎週土曜 6:00 JST に全パックの mod を更新し、差分があればPRを作る
+on:
+  schedule:
+    - cron: "0 21 * * 5" # UTC金曜21時 = JST土曜6時
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install packwiz
+        run: go install github.com/packwiz/packwiz@latest
+
+      - name: Update all packs
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          ./scripts/update-all.sh
+
+      - name: Re-sync catalog (未対応→対応済みになったmodを取り込む)
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          for dir in packs/*/; do
+            [ -f "$dir/pack.toml" ] || continue
+            ./scripts/sync.sh "$dir"
+          done
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: chore/mod-updates
+          title: "chore: 週次mod更新"
+          commit-message: "chore: packwiz update --all & catalog re-sync"
+          body: |
+            packwiz による自動更新PRです。
+
+            - `packwiz update --all` で既存modを更新
+            - `scripts/sync.sh` で catalog の未追加mod（新たに対応されたもの）を取り込み
+
+            差分を確認してマージしてください。
+            マージ後は各インスタンスの次回起動時に packwiz-installer が自動で反映します。

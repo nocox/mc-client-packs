@@ -1,0 +1,7 @@
+# jar本体はコミットしない（packwizはメタデータのみ管理する）
+*.jar
+
+# sync.sh が出力する一時ファイル
+.sync-skipped.txt
+
+.DS_Store

@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+# 全バージョンのパックの mod を最新版へ一括更新する
+# usage: scripts/update-all.sh
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+if ! command -v packwiz >/dev/null 2>&1; then
+  echo "ERROR: packwiz がありません。先に scripts/bootstrap.sh を実行してください" >&2
+  exit 1
+fi
+
+found=0
+for dir in "$ROOT"/packs/*/; do
+  [ -f "$dir/pack.toml" ] || continue
+  found=1
+  echo ""
+  echo "===== update: ${dir#"$ROOT"/} ====="
+  (cd "$dir" && packwiz update --all -y && packwiz refresh)
+done
+
+if [ "$found" -eq 0 ]; then
+  echo "packs/ 配下にパックがありません。scripts/new-version.sh <ver> で作成してください"
+  exit 1
+fi
+
+echo ""
+echo "===== 差分 ====="
+git -C "$ROOT" --no-pager diff --stat || true
