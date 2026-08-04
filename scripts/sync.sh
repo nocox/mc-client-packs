@@ -45,6 +45,11 @@ done < "$CATALOG"
 
 packwiz refresh
 
+# mod間の対バージョン（Iris が要求する Sodium 等）を検査し、ズレていれば入れ直す。
+# packwiz add はチャンネルを見ずに最新版（alpha含む）を選ぶため、これが無いと
+# 片方だけ新しい alpha が入ってクラッシュする構成がそのまま通ってしまう
+"$ROOT/scripts/check-compat.sh" "$PWD" --fix
+
 echo ""
 echo "===== sync result: $PACK_DIR ====="
 echo "OK     :${ok_list:- (none)}"

@@ -83,7 +83,8 @@ git add -A && git commit -m "feat: 26.2 パック追加" && git push
 
 1. `packwiz update --all` で既存modを更新
 2. `sync.sh` でカタログ未反映mod（新たに対応されたもの）を取り込み
-3. 差分があればPRを作成
+3. `check-compat.sh` で mod間の対バージョン（Iris↔Sodium 等）を検査・自動修復
+4. 差分があればPRを作成（不整合が残っている場合はPRを作らず失敗する）
 
 → あなたはPRの差分を見てマージするだけ。次回起動時に反映されます。
 
@@ -122,6 +123,7 @@ raw URL に認証が必要になるため、いずれかを選択:
 
 ## トラブルシュート
 
+- **サーバ/ワールドに入った瞬間 Mixin エラーでクラッシュする**（例: `Mixin transformation of ...sodium... failed` / `MixinRenderRegionManager ... failed injection check`）: Iris↔Sodium の対バージョン不整合。`./scripts/check-compat.sh packs/<ver> --fix` で要求バージョンに揃えて commit & push
 - **起動時に hash mismatch 等で失敗する**: 対象パックで `packwiz refresh` → commit & push して再起動
 - **modがSKIPPEDのまま入らない**: そのMCバージョン未対応。`https://modrinth.com/mod/<slug>/versions` で対応状況を確認
 - **OptiFine系シェーダーを使いたい**: このパックは Iris + Sodium 構成。シェーダーパックは Iris対応のものを `catalog/mods.txt` に追加する（Modrinthにあるものなら packwiz で管理可能）

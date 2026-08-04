@@ -42,7 +42,14 @@ https://api.modrinth.com/v2/project/<slug>/version?game_versions=["<ver>"]&loade
 
 ## 検証
 
-コミット前に必ず、変更したパックで `packwiz refresh` が成功することを確認する。
+コミット前に必ず、変更したパックで以下を確認する:
+
+1. `packwiz refresh` が成功すること
+2. `./scripts/check-compat.sh packs/<ver>` が成功すること
+   （mod間の対バージョン検査。Iris は特定バージョンの Sodium を要求するため、
+   片方だけ新しい alpha に更新されるとワールド参加時にクラッシュする。
+   sync.sh / update-all.sh は自動で `--fix` 付き実行するが、packwiz を
+   直接叩いて変更した場合は手動で実行すること）
 
 ## コミット規約
 

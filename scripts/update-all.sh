@@ -17,6 +17,9 @@ for dir in "$ROOT"/packs/*/; do
   echo ""
   echo "===== update: ${dir#"$ROOT"/} ====="
   (cd "$dir" && packwiz update --all -y && packwiz refresh)
+  # update は最新版（alpha含む）へ進めるため、mod間の対バージョンを検査して
+  # ズレていれば要求されているバージョンへ戻す（Iris↔Sodium 等）
+  "$ROOT/scripts/check-compat.sh" "$dir" --fix
 done
 
 if [ "$found" -eq 0 ]; then

@@ -18,6 +18,8 @@ immediatelyfast
 modernfix
 
 # ---- shaders（影mod） ----
+# iris は対になる Sodium バージョンを厳密に要求する。
+# sync/update 後に scripts/check-compat.sh が整合を検査・修復する
 iris
 complementary-reimagined
 
