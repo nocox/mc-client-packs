@@ -11,10 +11,10 @@ sodium
 lithium
 entityculling
 dynamic-fps
-
-# 26.2 時点では未対応（2026-08-04 調査）。対応され次第 sync で自動追加
 ferrite-core
 immediatelyfast
+
+# 26.2 時点では未対応（2026-08-04 調査）。対応され次第 sync で自動追加
 modernfix
 
 # ---- shaders（影mod） ----
@@ -26,7 +26,7 @@ complementary-reimagined
 # ---- convenience（便利mod） ----
 modmenu             # mod一覧・設定画面（各modの設定への入口）
 appleskin           # 満腹度・隠し食料値・満腹度回復量の可視化
-emi                 # レシピ・アイテム閲覧（JEI/REI系の定番）
+emi                 # レシピ・アイテム閲覧（JEI/REI系の定番）※26.2未対応（2026-08-04 調査）
 xaeros-minimap      # ミニマップ
 xaeros-world-map    # ワールドマップ（ミニマップと連携）
 jade                # 視線の先のブロック/エンティティ情報を表示（WAILA系）

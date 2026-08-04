@@ -108,10 +108,11 @@ Minecraftクライアントmodを管理している。以下を実行して:
 
 | カテゴリ | mod | 26.2 |
 | --- | --- | --- |
-| 軽量化 | Sodium / Lithium / EntityCulling / Dynamic FPS | ✓ |
-| 軽量化 | FerriteCore / ImmediatelyFast / ModernFix | 未対応（カタログ登録済み、対応後に自動追加） |
+| 軽量化 | Sodium / Lithium / EntityCulling / Dynamic FPS / FerriteCore / ImmediatelyFast | ✓ |
+| 軽量化 | ModernFix | 未対応（カタログ登録済み、対応後に自動追加） |
 | 影mod | Iris / Complementary Reimagined | ✓ |
-| 便利mod | （今後 `catalog/mods.txt` に追加） | - |
+| 便利mod | Mod Menu / AppleSkin / Xaero's Minimap / Xaero's World Map / Jade / Mouse Tweaks / Shulker Box Tooltip / Zoomify | ✓ |
+| 便利mod | EMI | 未対応（カタログ登録済み、対応後に自動追加） |
 
 ## private運用にしたい場合
 
