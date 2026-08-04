@@ -88,12 +88,18 @@ while read -r pid vid name; do
     mismatch=1
     if [ "$FIX" = 1 ]; then
       echo "FIX: $dep_name を要求バージョン ($want) で入れ直します"
-      # --version-id は slug/ID の位置引数と併用できない（IDは全mod間で一意なので単独で足りる）
+      # packwiz modrinth add はプロジェクト指定が必須（--project-id フラグで渡す。
+      # slug/ID の位置引数は --version-id と併用できない）
       if packwiz remove "$dep_name" </dev/null &&
-        packwiz modrinth add --version-id "$dep_vid" -y </dev/null; then
+        packwiz modrinth add --project-id "$dep_pid" --version-id "$dep_vid" -y </dev/null; then
         fixed=1
       else
         echo "ERROR: $dep_name の入れ直しに失敗しました" >&2
+        # remove 済みのまま放置するとパックから mod が消えてしまうため、
+        # ひとまず最新版を入れ直してから失敗として終了する（不整合は残る）
+        packwiz modrinth add --project-id "$dep_pid" -y </dev/null ||
+          echo "ERROR: $dep_name の復元にも失敗しました。手動で追加してください: packwiz modrinth add $dep_name" >&2
+        packwiz refresh </dev/null
         exit 1
       fi
     fi
