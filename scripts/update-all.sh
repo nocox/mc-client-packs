@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# 全バージョンのパックの mod を最新版へ一括更新する
+# 全サーバのパックの mod を最新版へ一括更新する
 # usage: scripts/update-all.sh
 set -euo pipefail
 
@@ -23,7 +23,7 @@ for dir in "$ROOT"/packs/*/; do
 done
 
 if [ "$found" -eq 0 ]; then
-  echo "packs/ 配下にパックがありません。scripts/new-version.sh <ver> で作成してください"
+  echo "packs/ 配下にパックがありません。scripts/new-server.sh <server> <ver> で作成してください"
   exit 1
 fi
 

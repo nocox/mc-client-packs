@@ -1,4 +1,4 @@
-name = "client-pack-26.2"
+name = "client-pack-okaka"
 author = "nocox"
 version = "1.0.0"
 pack-format = "packwiz:1.1.0"
@@ -6,7 +6,7 @@ pack-format = "packwiz:1.1.0"
 [index]
 file = "index.toml"
 hash-format = "sha256"
-hash = "b5c1af06385d7836ba55e6890f1353f05c74999e98d9ff1c106f1f3d99f9fae8"
+hash = "15c5dd78528e5eadbeb9c02ed1824f761345d2068aca1beb0e8630d22fff2c7e"
 
 [versions]
 fabric = "0.19.3"
