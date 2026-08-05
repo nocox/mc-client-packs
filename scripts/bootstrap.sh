@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
-# 初回セットアップ: packwiz を導入して、指定MCバージョンのパックを生成する
-# usage: scripts/bootstrap.sh 26.2
+# 初回セットアップ: packwiz を導入して、指定サーバ用のパックを生成する
+# usage: scripts/bootstrap.sh okaka 26.2
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-VER="${1:?usage: scripts/bootstrap.sh <mc-version>  (e.g. 26.2)}"
+SERVER="${1:?usage: scripts/bootstrap.sh <server-name> <mc-version>  (e.g. okaka 26.2)}"
+VER="${2:?usage: scripts/bootstrap.sh <server-name> <mc-version>  (e.g. okaka 26.2)}"
 
 if ! command -v packwiz >/dev/null 2>&1; then
   echo "packwiz が見つからないためインストールします..."
@@ -23,4 +24,4 @@ fi
 packwiz --help >/dev/null
 echo "packwiz OK: $(command -v packwiz)"
 
-exec "$ROOT/scripts/new-version.sh" "$VER"
+exec "$ROOT/scripts/new-server.sh" "$SERVER" "$VER"

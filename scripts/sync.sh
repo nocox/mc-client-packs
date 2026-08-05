@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 # catalog/mods.txt の内容を指定パックへ同期する（冪等・何度でも再実行OK）
-# usage: scripts/sync.sh packs/26.2
+# usage: scripts/sync.sh packs/okaka
 set -uo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PACK_DIR="${1:?usage: scripts/sync.sh <pack-dir>  (e.g. packs/26.2)}"
+PACK_DIR="${1:?usage: scripts/sync.sh <pack-dir>  (e.g. packs/okaka)}"
 CATALOG="$ROOT/catalog/mods.txt"
 
 # 絶対パス/相対パスどちらでも受ける
@@ -18,7 +18,7 @@ else
 fi
 
 if [ ! -f pack.toml ]; then
-  echo "ERROR: pack.toml がありません。先に scripts/new-version.sh <ver> を実行してください" >&2
+  echo "ERROR: pack.toml がありません。先に scripts/new-server.sh <server> <ver> を実行してください" >&2
   exit 1
 fi
 if ! command -v packwiz >/dev/null 2>&1; then

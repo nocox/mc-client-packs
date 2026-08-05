@@ -1,10 +1,6 @@
 hash-format = "sha256"
 
 [[files]]
-file = ".sync-skipped.txt"
-hash = "0b9278aadace76c91a334a95a69017d8c63005c2b93b31daf7fd0d1c4d86fdd2"
-
-[[files]]
 file = "mods/appleskin.pw.toml"
 hash = "62feaecc7c5afcf698c72f5f5edfda9562a2b2b6da30868cd36474c813073348"
 metafile = true

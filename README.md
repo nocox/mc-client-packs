@@ -3,7 +3,9 @@
 Minecraft のクライアントmod（軽量化・影mod・便利mod）を **packwiz** で宣言的に管理するリポジトリ。
 
 - mod構成は `catalog/mods.txt` に slug を書くだけ（Infrastructure as Code のノリ）
-- MCバージョンごとにパックが独立して共存（`packs/26.2/` など）。古いバージョンも残せる
+- パックは **遊ぶサーバ（グループ）ごと**に独立して共存（`packs/okaka/` など）。
+  MCバージョンはパックの属性で、サーバのバージョンが上がったらそのパックを in-place で移行する
+  → インスタンスと配信URLはサーバごとに固定のまま
 - クライアント側は **packwiz-installer** が起動時に自動同期 → 手作業でのmod入れ替えが不要
 - 更新は AI起点（Claude Code / GitHub Actions / Cowork定期タスク）で PR が来る → マージするだけ
 
@@ -14,11 +16,11 @@ Minecraft のクライアントmod（軽量化・影mod・便利mod）を **pack
 └─────────────────────┘                          └──────┬───────┘
                                                         │ raw URL
                                         起動時に自動同期  ▼
-                                          ┌──────────────────────┐
-                                          │ Prism Launcher        │
-                                          │  ├ instance 26.2      │← packwiz-installer
-                                          │  └ instance 1.21.x    │← packwiz-installer
-                                          └──────────────────────┘
+                                          ┌───────────────────────────┐
+                                          │ Prism Launcher             │
+                                          │  ├ instance okaka (26.2)   │← packwiz-installer
+                                          │  └ instance <server2> (…)  │← packwiz-installer
+                                          └───────────────────────────┘
 ```
 
 ## 初回セットアップ
@@ -37,35 +39,50 @@ gh repo create mc-client-packs --public --source=. --push
 ### 2. パックを生成する
 
 ```bash
-./scripts/bootstrap.sh 26.2   # packwiz導入 + packs/26.2/ を生成 + catalog同期
-git add -A && git commit -m "feat: 26.2 パック追加" && git push
+./scripts/bootstrap.sh okaka 26.2   # packwiz導入 + packs/okaka/ を生成 + catalog同期
+git add -A && git commit -m "feat: okaka パック追加" && git push
 ```
 
 途中で `SKIPPED` と出たmodは、そのMCバージョン未対応なだけ。カタログに残しておけば
 対応版リリース後の sync / 週次Actions で自動的に入ります。
 
-### 3. Prism Launcher 側の設定（バージョンごとに1回だけ）
+### 3. Prism Launcher 側の設定（サーバごとに1回だけ）
 
-1. 新規インスタンス作成: MC 26.2 / Fabric（バージョンは pack.toml と合わせる）
+1. 新規インスタンス作成: MC / Fabric（バージョンは `packs/<server>/pack.toml` と合わせる）
 2. [packwiz-installer-bootstrap.jar](https://github.com/packwiz/packwiz-installer-bootstrap/releases) をダウンロードし、インスタンスの `.minecraft`（または `minecraft`）フォルダに置く
 3. インスタンス編集 → Settings → Custom commands → **Pre-launch command** に:
 
 ```
-"$INST_JAVA" -jar packwiz-installer-bootstrap.jar https://raw.githubusercontent.com/<user>/mc-client-packs/main/packs/26.2/pack.toml
+"$INST_JAVA" -jar packwiz-installer-bootstrap.jar https://raw.githubusercontent.com/<user>/mc-client-packs/main/packs/okaka/pack.toml
 ```
 
 以後、**ゲームを起動するたびにリポジトリの構成が自動反映**されます。
-別バージョンで遊びたければ、インスタンスをもう1つ作って URL の `packs/<ver>/` を変えるだけです。
+URL はサーバ名で固定なので、サーバのMCバージョンが上がってもインスタンスを作り直す必要はありません。
+別のサーバ（グループ）で遊び始めるときだけ、インスタンスをもう1つ作って URL の `packs/<server>/` を変えます。
 
 ## 日常運用
 
 | やりたいこと | 操作 |
 | --- | --- |
 | 普通に遊ぶ | Prismで起動するだけ（起動時に自動同期） |
-| modを足す | `catalog/mods.txt` に slug 追記 → `./scripts/sync.sh packs/<ver>` → commit & push |
+| modを足す | `catalog/mods.txt` に slug 追記 → `./scripts/sync.sh packs/<server>` → commit & push |
 | mod一括更新 | 週次Actionsが作るPRをマージ（手動なら `./scripts/update-all.sh`） |
-| 新MCバージョン対応 | `./scripts/new-version.sh <ver>` → commit & push → Prismに新インスタンス追加 |
+| サーバのMCバージョンが上がった | `./scripts/bump-version.sh packs/<server> <new-ver>` → commit & push（タグも）→ Prismの該当インスタンスで MC / Fabric Loader のバージョンを変更 |
+| 新しいサーバで遊び始める | `./scripts/new-server.sh <server> <ver>` → commit & push → Prismに新インスタンス追加 |
 | 動作確認（push前） | パックのディレクトリで `packwiz serve` → pre-launch URL を一時的に `http://localhost:8080/pack.toml` に |
+
+### バージョンアップの仕組み
+
+`bump-version.sh` は移行前の構成に git タグ `<server>/<old-ver>` を打ってから、
+`packwiz migrate` でMC/ローダーのバージョンを更新し、全modを新バージョン向けに再解決します。
+新バージョン未対応の mod は DROPPED としていったん外れます（catalog には残るので、
+mod側が対応した後の sync / 週次Actions で自動復帰）。
+
+古いバージョンに戻りたくなったら、タグの raw URL を指すインスタンスを作れば復活できます:
+
+```
+https://raw.githubusercontent.com/<user>/mc-client-packs/refs/tags/<server>%2F<old-ver>/packs/<server>/pack.toml
+```
 
 ## AI起点の運用
 
@@ -73,7 +90,7 @@ git add -A && git commit -m "feat: 26.2 パック追加" && git push
 
 リポジトリ直下に `CLAUDE.md` があるので、Claude Code がレシピを理解した状態で作業できます。プロンプト例:
 
-- 「26.3 が出たらしいので新バージョン対応して。未対応modは Modrinth API で調べて一覧にして」
+- 「okaka のサーバが 26.3 に上がったので追従して。未対応modは Modrinth API で調べて一覧にして」
 - 「ミニマップ系の便利modを比較して、良さそうなのを catalog に追加して全パックに反映して」
 - 「このスクリーンショットのクラッシュログを見て原因のmodを特定して外して」
 
@@ -95,16 +112,24 @@ Coworkで以下のような定期タスクを作成してください（雛形�
 
 ```
 GitHubリポジトリ https://github.com/<user>/mc-client-packs は packwiz で
-Minecraftクライアントmodを管理している。以下を実行して:
+Minecraftクライアントmodを管理している（packs/<server>/ が遊ぶサーバごとのパック）。
+以下を実行して:
 1. https://launchermeta.mojang.com/mc/game/version_manifest.json で新しい安定版が出ていないか確認
 2. 出ていたら、catalog/mods.txt 記載の各modについて Modrinth API
    (https://api.modrinth.com/v2/project/<slug>/version?game_versions=["<ver>"]&loaders=["fabric"])
    で新バージョン対応状況を調査
-3. 主要mod（sodium, iris, lithium）が対応済みなら「scripts/new-version.sh <ver> の実行を推奨」、
-   未対応なら「様子見」を、未対応mod一覧・代替候補付きでレポートして
+3. 主要mod（sodium, iris, lithium）が対応済みなら「サーバが <ver> に上がったときは
+   scripts/bump-version.sh packs/<server> <ver> で追従可能」、未対応なら「様子見」を、
+   未対応mod一覧・代替候補付きでレポートして
 ```
 
-## 現在の構成（2026-08-04 時点の 26.2 対応状況）
+## 現在の構成
+
+| サーバ | MCバージョン | 備考 |
+| --- | --- | --- |
+| okaka | 26.2 | |
+
+### okaka の対応状況（2026-08-04 時点、MC 26.2）
 
 | カテゴリ | mod | 26.2 |
 | --- | --- | --- |
@@ -123,7 +148,7 @@ raw URL に認証が必要になるため、いずれかを選択:
 
 ## トラブルシュート
 
-- **サーバ/ワールドに入った瞬間 Mixin エラーでクラッシュする**（例: `Mixin transformation of ...sodium... failed` / `MixinRenderRegionManager ... failed injection check`）: Iris↔Sodium の対バージョン不整合。`./scripts/check-compat.sh packs/<ver> --fix` で要求バージョンに揃えて commit & push
+- **サーバ/ワールドに入った瞬間 Mixin エラーでクラッシュする**（例: `Mixin transformation of ...sodium... failed` / `MixinRenderRegionManager ... failed injection check`）: Iris↔Sodium の対バージョン不整合。`./scripts/check-compat.sh packs/<server> --fix` で要求バージョンに揃えて commit & push
 - **起動時に hash mismatch 等で失敗する**: 対象パックで `packwiz refresh` → commit & push して再起動
 - **modがSKIPPEDのまま入らない**: そのMCバージョン未対応。`https://modrinth.com/mod/<slug>/versions` で対応状況を確認
 - **OptiFine系シェーダーを使いたい**: このパックは Iris + Sodium 構成。シェーダーパックは Iris対応のものを `catalog/mods.txt` に追加する（Modrinthにあるものなら packwiz で管理可能）
