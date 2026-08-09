@@ -19,7 +19,7 @@ Minecraft のクライアントmod（軽量化・影mod・便利mod）を **pack
                                           ┌───────────────────────────┐
                                           │ Prism Launcher             │
                                           │  ├ instance okaka (26.2)   │← packwiz-installer
-                                          │  └ instance <server2> (…)  │← packwiz-installer
+                                          │  └ instance yutori (26.2)  │← packwiz-installer
                                           └───────────────────────────┘
 ```
 
@@ -128,15 +128,19 @@ Minecraftクライアントmodを管理している（packs/<server>/ が遊ぶ�
 | サーバ | MCバージョン | 備考 |
 | --- | --- | --- |
 | okaka | 26.2 | |
+| yutori | 26.2 | |
 
-### okaka の対応状況（2026-08-04 時点、MC 26.2）
+### okaka / yutori の対応状況（2026-08-09 時点、MC 26.2）
+
+両サーバとも MC 26.2 のため、現時点でパックの中身は同一（バージョンアップのタイミングは今後それぞれ独立）。
 
 | カテゴリ | mod | 26.2 |
 | --- | --- | --- |
-| 軽量化 | Sodium / Lithium / EntityCulling / Dynamic FPS | ✓ |
-| 軽量化 | FerriteCore / ImmediatelyFast / ModernFix | 未対応（カタログ登録済み、対応後に自動追加） |
+| 軽量化 | Sodium / Lithium / EntityCulling / Dynamic FPS / FerriteCore / ImmediatelyFast | ✓ |
+| 軽量化 | ModernFix | 未対応（カタログ登録済み、対応後に自動追加） |
 | 影mod | Iris / Complementary Reimagined | ✓ |
-| 便利mod | （今後 `catalog/mods.txt` に追加） | - |
+| 便利mod | ModMenu / AppleSkin / Xaero's Minimap / Xaero's World Map / Jade / Mouse Tweaks / ShulkerBoxTooltip / Zoomify | ✓ |
+| 便利mod | EMI | 未対応（カタログ登録済み、対応後に自動追加） |
 
 ## private運用にしたい場合
 
