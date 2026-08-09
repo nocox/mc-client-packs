@@ -1,0 +1,54 @@
+name: branch-new-server-once
+
+# 【一時的な workflow】claude/yutori-server-setup-c3u17u ブランチ専用。
+# Claude Code の実行環境から Modrinth API に到達できないため、
+# yutori パックの生成（new-server.sh）をランナー側で実行してブランチに直接コミットする。
+# 反映が終わったらこのファイルは削除する。
+on:
+  push:
+    branches:
+      - claude/yutori-server-setup-c3u17u
+
+permissions:
+  contents: write
+
+jobs:
+  new-server:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Install packwiz
+        run: go install github.com/packwiz/packwiz@latest
+
+      - name: Create yutori pack (MC 26.2) and sync catalog
+        run: |
+          export PATH="$PATH:$(go env GOPATH)/bin"
+          ./scripts/new-server.sh yutori 26.2
+
+      - name: Check mod compatibility
+        run: |
+          ./scripts/check-compat.sh packs/yutori
+
+      - name: Show result summary
+        run: |
+          echo "===== pack.toml ====="
+          cat packs/yutori/pack.toml
+          echo "===== skipped mods ====="
+          cat packs/yutori/.sync-skipped.txt 2>/dev/null || echo "(none)"
+
+      - name: Commit and push result
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add packs/yutori
+          if git diff --cached --quiet; then
+            echo "no changes"
+          else
+            git commit -m "feat: yutori パック追加"
+            git push
+          fi
